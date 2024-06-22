@@ -1,0 +1,30 @@
+.container {
+    text-align: center;
+}
+
+.title {
+    font-size: 6em;
+    color: #dfdfdf;
+    margin-bottom: 150px;
+}
+
+.subtitle {
+    font-size: 2em;
+    color: #f7f7f7;
+    margin-bottom: 50px;
+}
+
+.button {
+    font-size: 2em;
+    padding: 50px 50px;
+    background-color: #efefef;
+    color: #000000;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}

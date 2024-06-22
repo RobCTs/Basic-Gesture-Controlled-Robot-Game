@@ -1,0 +1,12 @@
+{% extends "home/base.html" %}
+{% block title %}Game Result{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rock_paper_scissors.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container-result">
+    <h1 class="result-title">{{ final_text }}</h1>
+    <p class="result">Player Score: {{ player_score }}</p>
+    <a href="{{ url_for('game.rock_paper_scissors') }}" class="button-result">Play Again</a>
+</div>
+{% endblock %}

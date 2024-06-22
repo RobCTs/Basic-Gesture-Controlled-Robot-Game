@@ -1,0 +1,79 @@
+{% extends "home/base.html" %}
+{% block title %}Rock Paper Scissors{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rock_paper_scissors.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="title" id="heading-text">Rock Paper Scissors</h1>
+    <div class="video-container">
+        <img src="{{ url_for('game.video_feed') }}" class="video-feed">
+    </div>
+    {% if playing_rps %}
+        <div class="status-container">
+            <div class="status-left">
+                <div class="gamestat">
+                    <p id="player-move">Player Move: </p>
+                </div>
+                <div class="gamestat">
+                    <p id="computer-move">Computer Move: </p>
+                </div>
+            </div>
+            <div class="status-right">
+                <div class="gamestat">
+                    <p id="current-round">Round: </p>
+                </div>
+                <div class="gamestat">
+                    <p id="player-score">Score: </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="buttons">
+            <button class="button" onclick="location.href='{{ url_for('game.start_game') }}'">Start Game</button>
+            <button class="button" onclick="location.href='{{ url_for('home.choose_game') }}'">Go Back</button>
+        </div>
+    {% endif %}
+</div>
+
+{% if playing_rps %}
+<script>
+    function fetchGameStatus() {
+        fetch('/get_game_status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('player-move').innerText = 'Player Move: ' + data.player_move;
+                document.getElementById('computer-move').innerText = 'Computer Move: ' + data.computer_move;
+                document.getElementById('heading-text').innerText = data.game_text;
+                document.getElementById('player-score').innerText = 'Score: ' + data.player_score;
+                document.getElementById('current-round').innerText = 'Round: ' + data.current_round + '/' + data.total_rounds;
+                if (data.over_rps === true) {
+                    location.href = '/rock_paper_scissors_result';
+                }
+
+                // Based on current_round, change the background of the whole page
+                switch (data.current_round) {
+                    case 0:
+                        document.body.style.backgroundColor = '#060079';
+                        break;
+                    case 1:
+                        document.body.style.backgroundColor = '#3b0835';
+                        break;
+                    case 2:
+                        document.body.style.backgroundColor = '#3b080c';
+                        break;
+                    case 3:
+                        document.body.style.backgroundColor = '#083b14';
+                        break;
+                    case 4:
+                        document.body.style.backgroundColor = '#3b3708';
+                        break;
+                }
+
+            });
+    }
+
+    setInterval(fetchGameStatus, 1000);
+</script>
+{% endif %}
+{% endblock %}

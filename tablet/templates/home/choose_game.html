@@ -1,0 +1,18 @@
+{% extends "home/base.html" %}
+{% block title %}Choose Game{% endblock %}
+{% block styles%} 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/choose_game.css') }}">
+{% endblock %}
+{% block content %}
+<div class="game-global">
+    <h1 class="game-title">Choose a Game</h1>
+    <div class="game-container">
+        <div class="game-choice" onclick="location.href='{{ url_for('game.rock_paper_scissors') }}'">
+            <p>Rock Paper Scissors</p>
+        </div>
+        <div class="game-choice" onclick="location.href='{{ url_for('game.copycat') }}'">
+            <p>Copycat</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

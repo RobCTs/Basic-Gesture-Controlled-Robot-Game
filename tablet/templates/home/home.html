@@ -1,0 +1,14 @@
+{% extends "home/base.html" %}
+{% block title %}Home{% endblock %}
+{% block styles%} 
+    <link rel="stylesheet" href="{{ url_for("static", filename="css/home.css") }}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1 class="title">Welcome Human!</h1>
+        <p class="subtitle">
+            Talk with me or
+        </p>
+        <button class="button" onclick="location.href='{{ url_for('home.getinfo') }}'">Touch This Button</button>
+    </div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "home/base.html" %}
+{% block title %}What is your Information{% endblock %}
+{% block styles%} 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/getinfo.css') }}">
+{% endblock %}
+{% block content %}
+<div class="form-container">
+    <h1 class="form-title">Enter Your Information</h1>
+    <form method="POST" action="{{ url_for('home.getinfo') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-input") }}
+        </div>
+        <div class="form-group">
+            {{ form.age.label(class="form-label") }}
+            {{ form.age(class="form-input") }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="form-button") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
