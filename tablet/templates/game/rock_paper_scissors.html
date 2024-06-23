@@ -4,37 +4,62 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/rock_paper_scissors.css') }}">
 {% endblock %}
 {% block content %}
-<div class="container">
-    <h1 class="title" id="heading-text">Rock Paper Scissors</h1>
-    <div class="video-container">
-        <img src="{{ url_for('game.video_feed') }}" class="video-feed">
+{% if playing_rps %}
+<div class="interround-container" id="interround-container" style="display: none;">
+    <div class="interround-heading" id="interround-gametext">
+        <p>Inter Round</p>
     </div>
-    {% if playing_rps %}
-        <div class="status-container">
-            <div class="status-left">
-                <div class="gamestat">
-                    <p id="player-move">Player Move: </p>
-                </div>
-                <div class="gamestat">
-                    <p id="computer-move">Computer Move: </p>
-                </div>
-            </div>
-            <div class="status-right">
-                <div class="gamestat">
-                    <p id="current-round">Round: </p>
-                </div>
-                <div class="gamestat">
-                    <p id="player-score">Score: </p>
-                </div>
-            </div>
+    <div class="interround-moves">
+        <div class="player-move">
+            <p class="interround-move-text">Player Move:</p>
+            <img id="player-move-img" src="" alt="Player Move" class="move-img">
         </div>
-    {% else %}
-        <div class="buttons">
-            <button class="button" onclick="location.href='{{ url_for('game.start_game') }}'">Start Game</button>
-            <button class="button" onclick="location.href='{{ url_for('home.choose_game') }}'">Go Back</button>
+        <div class="computer-move">
+            <p class="interround-move-text">Computer Move:</p>
+            <img id="computer-move-img" src="" alt="Computer Move" class="move-img">
         </div>
-    {% endif %}
+    </div>
+    <div class="interround-text">
+        <p>Get ready for the next round!</p>
+    </div>
 </div>
+{% endif %}
+<div class="container-whole" id="container-whole">
+    <div class="container">
+        <h1 class="title" id="heading-text">Rock Paper Scissors</h1>
+        <div class="video-container">
+            <img src="{{ url_for('game.video_feed') }}" class="video-feed">
+        </div>
+        {% if playing_rps %}
+            
+            <div class="status-container">
+                <div class="status-left">
+                    <div class="gamestat">
+                        <p id="instant-player-move">Instant Player Move: </p>
+                    </div>
+                    <div class="gamestat">
+                        <p id="average-player-move">Current Player Move: </p>
+                    </div>
+                </div>
+                <div class="status-right">
+                    <div class="gamestat">
+                        <p id="current-round">Round: </p>
+                    </div>
+                    <div class="gamestat">
+                        <p id="player-score">Score: </p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="buttons">
+                <button class="button" onclick="location.href='{{ url_for('game.start_game') }}'">Start Game</button>
+                <button class="button" onclick="location.href='{{ url_for('home.choose_game') }}'">Go Back</button>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
 
 {% if playing_rps %}
 <script>
@@ -42,11 +67,35 @@
         fetch('/get_game_status')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('player-move').innerText = 'Player Move: ' + data.player_move;
-                document.getElementById('computer-move').innerText = 'Computer Move: ' + data.computer_move;
+                document.getElementById('instant-player-move').innerText = 'Instant Player Move: ' + data.instant_player_move;
+                document.getElementById('average-player-move').innerText = 'Current Player Move: ' + data.player_move;
                 document.getElementById('heading-text').innerText = data.game_text;
                 document.getElementById('player-score').innerText = 'Score: ' + data.player_score;
                 document.getElementById('current-round').innerText = 'Round: ' + data.current_round + '/' + data.total_rounds;
+
+                // Show or hide interround-container based on inter_round_paused
+                const interroundContainer = document.getElementById('interround-container');
+                const containerWhole = document.getElementById('container-whole');
+                console.log(data.inter_round_paused)
+                if (data.inter_round_paused) {
+                    document.getElementById('interround-gametext').innerText = data.game_text;
+
+                    // Update images based on player and computer moves
+                    document.getElementById('player-move-img').src = `/static/images/${data.player_move}.png`;
+                    document.getElementById('computer-move-img').src = `/static/images/${data.computer_move}.png`;
+                  
+                    interroundContainer.style.display = 'flex';
+
+                    // Add blur class to container-whole
+                    containerWhole.classList.add('blur');
+                    
+                } else {
+                    interroundContainer.style.display = 'none';
+                    
+                    // Remove blur class from container-whole
+                    containerWhole.classList.remove('blur');
+                }
+
                 if (data.over_rps === true) {
                     location.href = '/rock_paper_scissors_result';
                 }
@@ -73,7 +122,7 @@
             });
     }
 
-    setInterval(fetchGameStatus, 1000);
+    setInterval(fetchGameStatus, 500);
 </script>
 {% endif %}
 {% endblock %}

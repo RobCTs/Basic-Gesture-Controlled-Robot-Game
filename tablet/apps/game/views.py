@@ -1,4 +1,6 @@
 import datetime
+import json
+import threading
 from flask import Blueprint, Response, jsonify
 from flask import render_template
 
@@ -12,10 +14,12 @@ import numpy as np
 import cv2
 import random
 import pickle
+from bridge_pepper.bridge import get_robot_dialog
+from bridge_pepper.utils import DialogType
 
 
 # Load the TFLite model from the same folder as the script
-MODEL_FOLDER = "/home/bernardo/Basic-Gesture-Controlled-Robot-Game/tablet/apps/game/rockpaperscissors/"
+MODEL_FOLDER = "D:\\Documents\\GitHub\\Basic-Gesture-Controlled-Robot-Game\\tablet\\apps\\game\\rockpaperscissors\\"
 interpreter = tf.lite.Interpreter(model_path=MODEL_FOLDER + "model.tflite")
 interpreter.allocate_tensors()
 
@@ -74,21 +78,25 @@ def convert_prediction(prediction):
 # Global variables to store game status
 player_move = None
 computer_move = None
+instant_player_move = None
 game_text = "Make your move!"
 player_score = 0
 current_round = 0
 playing_rps = False
 over_rps = False
+inter_round_paused = False
+timer_inter_round = datetime.datetime.now()
 timer_pred_rps = datetime.datetime.now()
 timer_round_rps = datetime.datetime.now()
 predictions_round_rps = []
 
 PREDS_PER_SEC = 10
-ROUND_TIME = 3
+ROUND_TIME = 4
 TOTAL_ROUNDS = 5
+INTER_ROUND_TIME = 5
 
 def gen_frames():
-    global player_move, computer_move, game_text, player_score, current_round, playing_rps, over_rps, timer_pred_rps, timer_round_rps, predictions_round_rps
+    global player_move, computer_move, game_text, player_score, current_round, playing_rps, over_rps, timer_pred_rps, timer_round_rps, predictions_round_rps, inter_round_paused, timer_inter_round, instant_player_move
     cap = cv2.VideoCapture(0)
     while True:
         success, frame = cap.read()
@@ -96,48 +104,66 @@ def gen_frames():
             break
         else:
             if playing_rps:
-                current_time = datetime.datetime.now()
-                time_elapsed_pred = current_time - timer_pred_rps
-
-                # For each 1/PRED_PER_SEC seconds, capture the player's move
-                if time_elapsed_pred.total_seconds() >= 1 / PREDS_PER_SEC:
-                    timer_pred_rps = current_time
-                    # Keep the frame dimensions intact
-                    frame_height, frame_width = frame.shape[:2]
-                    min_dim = min(frame_height, frame_width)
-                    start_x = frame_width // 2 - min_dim // 2
-                    end_x = frame_width // 2 + min_dim // 2
-                    start_y = frame_height // 2 - min_dim // 2
-                    end_y = frame_height // 2 + min_dim // 2
-                    cropped_frame = frame[start_y:end_y, start_x:end_x]
-
-                    prediction = predict_single_image(interpreter, cropped_frame, label_encoder)
-                    predictions_round_rps.append(prediction)
-
-                # If the round time has elapsed, determine the winner of the round
-                time_elapsed_round = current_time - timer_round_rps
-                if time_elapsed_round.total_seconds() >= ROUND_TIME:
-                    timer_round_rps = current_time
-                    if predictions_round_rps:
-                        player_move = max(set(predictions_round_rps), key=predictions_round_rps.count)
-                        player_move = convert_prediction(player_move)
-                        computer_move = random.choice(["rock", "paper", "scissors"])
-                        if player_move == computer_move:
-                            game_text = "It's a tie!"
-                        elif (player_move == "rock" and computer_move == "scissors") or \
-                                (player_move == "paper" and computer_move == "rock") or \
-                                (player_move == "scissors" and computer_move == "paper"):
-                            game_text = "Player Wins!"
-                            player_score += 1
-                        else:
-                            game_text = "Computer Wins!"
-                            player_score -= 1
+                if inter_round_paused:
+                    current_time = datetime.datetime.now()
+                    time_elapsed_inter_round = current_time - timer_inter_round
+                    if time_elapsed_inter_round.total_seconds() >= INTER_ROUND_TIME:
+                        inter_round_paused = False
+                        timer_pred_rps = current_time
+                        timer_round_rps = current_time
                         current_round += 1
                         predictions_round_rps = []
+                        game_text = "Make your move!"
+                else:
+                    current_time = datetime.datetime.now()
+                    time_elapsed_pred = current_time - timer_pred_rps
+
+                    # For each 1/PRED_PER_SEC seconds, capture the player's move
+                    if time_elapsed_pred.total_seconds() >= 1 / PREDS_PER_SEC:
+                        timer_pred_rps = current_time
+                        # Keep the frame dimensions intact
+                        frame_height, frame_width = frame.shape[:2]
+                        min_dim = min(frame_height, frame_width)
+                        start_x = frame_width // 2 - min_dim // 2
+                        end_x = frame_width // 2 + min_dim // 2
+                        start_y = frame_height // 2 - min_dim // 2
+                        end_y = frame_height // 2 + min_dim // 2
+                        cropped_frame = frame[start_y:end_y, start_x:end_x]
+
+                        prediction = predict_single_image(interpreter, cropped_frame, label_encoder)
+                        predictions_round_rps.append(prediction)
+                        instant_player_move = convert_prediction(prediction)
+                        player_move = max(set(predictions_round_rps), key=predictions_round_rps.count)
+                        player_move = convert_prediction(player_move)
+
+                    # If the round time has elapsed, determine the winner of the round
+                    time_elapsed_round = current_time - timer_round_rps
+                    if time_elapsed_round.total_seconds() >= ROUND_TIME:
+                        if predictions_round_rps:
+                            player_move = max(set(predictions_round_rps), key=predictions_round_rps.count)
+                            player_move = convert_prediction(player_move)
+                            computer_move = random.choice(["rock", "paper", "scissors"])
+                            if player_move == computer_move:
+                                game_text = "It's a tie!"
+                            elif (player_move == "rock" and computer_move == "scissors") or \
+                                    (player_move == "paper" and computer_move == "rock") or \
+                                    (player_move == "scissors" and computer_move == "paper"):
+                                game_text = "Player Wins!"
+                                player_score += 1
+                            else:
+                                game_text = "Computer Wins!"
+                                player_score -= 1
+
+                            inter_round_paused = True
+                            timer_inter_round = current_time
+                            x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_ROCK_PAPER_SCISSORS_ROUND, {'rps_move': player_move, 'rps_round_winner': 'player' if game_text == 'Player Wins!' else 'computer' if game_text == 'Computer Wins!' else 'tie'}))
+                            x.start()
+                            
 
                 if current_round >= TOTAL_ROUNDS:
                     playing_rps = False
                     over_rps = True
+                    inter_round_paused = False
 
             # Encode the frame to send it as a response
             ret, buffer = cv2.imencode('.jpg', frame)
@@ -151,6 +177,21 @@ def rock_paper_scissors():
     playing_rps = False
     over_rps = False
     
+    # Get current user and age
+    with open('session/info.json', 'r') as f:
+        data = json.load(f)
+        user = data['currentUser']
+        age = None
+        for user in data['registeredUsers']:
+            if user['name'] == user:
+                age = user['age']
+                break
+
+    
+    if not playing_rps:
+        x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_ROCK_PAPER_SCISSORS_START, {'name': user["name"] }))
+        x.start()
+    
     return render_template('game/rock_paper_scissors.html', playing_rps=playing_rps)
 
 @game.route('/start_game')
@@ -160,14 +201,17 @@ def start_game():
     over_rps = False
 
     # Reset the game status
-    global player_move, computer_move, game_text, player_score, current_round, timer_rps, predictions_round_rps, timer_round_rps
+    global player_move, computer_move, game_text, player_score, current_round, timer_rps, predictions_round_rps, timer_round_rps, inter_round_paused, timer_inter_round, instant_player_move
     player_move = None
     computer_move = None
+    instant_player_move = None
     game_text = "Make your move!"
     player_score = 0
     current_round = 0
     timer_rps = datetime.datetime.now()
     timer_round_rps = datetime.datetime.now()
+    inter_round_paused = False
+    timer_inter_round = datetime.datetime.now()
     predictions_round_rps = []
 
     # Refresh the rock paper scissors page with playing_rps set to True
@@ -181,15 +225,17 @@ def video_feed():
 
 @game.route('/get_game_status')
 def get_game_status():
-    global player_move, computer_move, game_text, player_score, current_round, TOTAL_ROUNDS, over_rps
+    global player_move, computer_move, game_text, player_score, current_round, TOTAL_ROUNDS, over_rps, inter_round_paused, instant_player_move
     return jsonify({
         'player_move': player_move,
+        'instant_player_move': instant_player_move,
         'computer_move': computer_move,
         'game_text': game_text,
         'player_score': player_score,
         'current_round': current_round,
         'total_rounds': TOTAL_ROUNDS,
-        'over_rps': over_rps
+        'over_rps': over_rps,
+        'inter_round_paused': inter_round_paused
     })
 
 @game.route('/rock_paper_scissors_result')
@@ -199,6 +245,10 @@ def rock_paper_scissors_result():
     over_rps = False
 
     final_text = "You won!" if player_score > 0 else "You lost!" if player_score < 0 else "It's a tie!"
+
+    x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_ROCK_PAPER_SCISSORS_OVER, {'player_score': player_score}))
+    x.start()
+
     return render_template('game/rock_paper_scissors_result.html', player_score=player_score, final_text=final_text)
 
 

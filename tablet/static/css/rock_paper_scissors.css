@@ -9,16 +9,26 @@ body, html {
     font-family: Arial, sans-serif;
 }
 
+.container-whole {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .container {
     text-align: center;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 800px;
 }
 
 .title {
     font-size: 2.5em;
     margin-bottom: 20px;
     margin-top: 20px;
-
     color: aliceblue;
 }
 
@@ -62,7 +72,7 @@ body, html {
     font-size: 0.9em;
     color: darkblue;
     background-color: aliceblue;
-    width: 75%;
+    width: 80%;
     border-radius: 10px;
     padding: 5px;
 }
@@ -128,4 +138,68 @@ body, html {
 
 .button-result:hover {
     background-color: #0056b3;
+}
+
+.interround-container {
+    position: fixed; /* Fixed positioning to stay on top */
+    top: 0; /* Top of the page */
+    left: 0; /* Left of the page */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    z-index: 1000; /* High z-index to stay on top of other elements */
+    display: flex; /* Flexbox to center content */
+    flex-direction: column; /* Column layout */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.interround-container .interround-text {
+    color: white; /* White text */
+    font-size: 2em; /* Larger text */
+    text-align: center; /* Center text */
+}
+
+.interround-container .interround-heading {
+    font-size: 3.5em; /* Larger heading */
+    font-weight: bold; /* Bold text */
+    color: white; /* White text */
+    margin-bottom: 40px; /* Space between heading and text */
+    text-align: center; /* Center text */
+}
+
+.interround-container .interround-moves {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 800px;
+    margin-bottom: 50px;
+    gap: 75px;
+}
+
+
+
+.interround-container .interround-moves .player-move,
+.interround-container .interround-moves .computer-move {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5em; /* Larger text */
+    color: white; /* White text */
+    text-align: center; /* Center text */
+}
+
+.interround-container .move-img {
+    width: 190px; 
+    height: 230px; 
+    border: 2px solid white;
+    background-color: white;
+    padding: 5px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.container-whole.blur {
+    filter: blur(5px); /* Apply blur to the whole page */
+    -webkit-filter: blur(5px); /* Apply blur in WebKit browsers */
 }

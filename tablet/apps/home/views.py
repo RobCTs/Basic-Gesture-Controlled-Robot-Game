@@ -2,18 +2,27 @@ import os
 from flask import Blueprint, redirect, url_for
 from flask import render_template
 import json
+from bridge_pepper.bridge import get_robot_dialog
+from bridge_pepper.utils import DialogType
 
 from apps.home.forms import InfoForm
+import threading
 
 home = Blueprint('home', __name__, template_folder='templates', static_folder='static')
 
+
 @home.route('/')
 def index():
+    x = threading.Thread(target=get_robot_dialog, args=(DialogType.INITIAL_GREETING, {}))
+    x.start()
+
     return render_template('home/home.html')
 
+    
 @home.route('/getinfo', methods=["GET", "POST"])
 def getinfo():
     form = InfoForm()
+
 
     if form.validate_on_submit():
         name = form.name.data
@@ -49,9 +58,15 @@ def getinfo():
         with open('session/info.json', 'w') as f:
             json.dump(data, f)
 
-        return redirect(url_for('home.choose_game'))
+        x = threading.Thread(target=get_robot_dialog, args=(DialogType.INITIAL_INFO_FINALIZED, {'name': name, 'age': age}))
+        x.start()
 
-    return render_template('home/getinfo.html', form=form)
+        return redirect(url_for('home.choose_game'))
+    else:
+        x = threading.Thread(target=get_robot_dialog, args=(DialogType.INITIAL_INFO_NAME_AGE, {}))
+        x.start()
+
+        return render_template('home/getinfo.html', form=form)
 
 
         
@@ -66,7 +81,10 @@ def choose_game():
             if user['name'] == user:
                 age = user['age']
                 break
-            
+
+    x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_CHOOSE_GAME, {}, 2000))
+    x.start()
+
     return render_template('home/choose_game.html', user=user, age=age)
 
 
