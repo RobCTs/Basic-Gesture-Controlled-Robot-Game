@@ -15,7 +15,7 @@ import pickle
 
 
 # Load the TFLite model from the same folder as the script
-MODEL_FOLDER = "D:\\Documents\\GitHub\\Basic-Gesture-Controlled-Robot-Game\\tablet\\apps\\game\\rockpaperscissors\\"
+MODEL_FOLDER = "/home/bernardo/Basic-Gesture-Controlled-Robot-Game/tablet/apps/game/rockpaperscissors/"
 interpreter = tf.lite.Interpreter(model_path=MODEL_FOLDER + "model.tflite")
 interpreter.allocate_tensors()
 
