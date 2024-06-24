@@ -11,10 +11,11 @@
 
 import pepper_tools.cmd_server.pepper_cmd as pepper_cmd
 from chat_management import get_robot_dialog
+from posture_management import setPosture, PAPER_DICT, SCISSORS_DICT, ROCK_DICT, normalPosture
 from flask import Flask, request
 from flask_restful import Api
 
-pepper_cmd.begin()
+robot = pepper_cmd.begin()
 
 app = Flask(__name__)
 
@@ -28,6 +29,20 @@ def chat_management():
     return "Success"
 
 
+@app.route('/set_posture', methods=['POST'])
+def set_posture():
+    time = request.json['time']
+    posture = request.json['posture']
+    if posture == "normal":
+        normalPosture(robot, time)
+    elif posture == "paper":
+        setPosture(robot, PAPER_DICT, time)
+    elif posture == "scissors":
+        setPosture(robot, SCISSORS_DICT, time)
+    elif posture == "rock":
+        setPosture(robot, ROCK_DICT, time)
+        
+    return "Success"
 
 
 

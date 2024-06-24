@@ -2,8 +2,8 @@ import os
 from flask import Blueprint, redirect, url_for
 from flask import render_template
 import json
-from bridge_pepper.bridge import get_robot_dialog
-from bridge_pepper.utils import DialogType
+from bridge_pepper.bridge import get_robot_dialog, set_posture
+from bridge_pepper.utils import DialogType, PostureType
 
 from apps.home.forms import InfoForm
 import threading
@@ -84,6 +84,9 @@ def choose_game():
 
     x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_CHOOSE_GAME, {}, 2000))
     x.start()
+
+    y = threading.Thread(target=set_posture, args=(PostureType.NORMAL, 0, 3.0))
+    y.start()
 
     return render_template('home/choose_game.html', user=user, age=age)
 

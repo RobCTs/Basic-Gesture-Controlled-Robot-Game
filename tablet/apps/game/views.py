@@ -14,8 +14,8 @@ import numpy as np
 import cv2
 import random
 import pickle
-from bridge_pepper.bridge import get_robot_dialog
-from bridge_pepper.utils import DialogType
+from bridge_pepper.bridge import get_robot_dialog, set_posture
+from bridge_pepper.utils import DialogType, PostureType
 
 
 # Load the TFLite model from the same folder as the script
@@ -114,6 +114,9 @@ def gen_frames():
                         current_round += 1
                         predictions_round_rps = []
                         game_text = "Make your move!"
+
+                        y = threading.Thread(target=set_posture, args=(PostureType.NORMAL, 0, 2.0))
+                        y.start()
                 else:
                     current_time = datetime.datetime.now()
                     time_elapsed_pred = current_time - timer_pred_rps
@@ -158,6 +161,17 @@ def gen_frames():
                             timer_inter_round = current_time
                             x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_ROCK_PAPER_SCISSORS_ROUND, {'rps_move': player_move, 'rps_round_winner': 'player' if game_text == 'Player Wins!' else 'computer' if game_text == 'Computer Wins!' else 'tie'}))
                             x.start()
+
+                            # Set Robot Posture
+                            if computer_move == "rock":
+                                y = threading.Thread(target=set_posture, args=(PostureType.ROCK, 0, 1.5))
+                                y.start()
+                            elif computer_move == "paper":
+                                y = threading.Thread(target=set_posture, args=(PostureType.PAPER, 0, 1.5))
+                                y.start()
+                            elif computer_move == "scissors":
+                                y = threading.Thread(target=set_posture, args=(PostureType.SCISSORS, 0, 1.5))
+                                y.start()
                             
 
                 if current_round >= TOTAL_ROUNDS:

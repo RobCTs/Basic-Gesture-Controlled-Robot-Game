@@ -42,7 +42,7 @@ Other: The GUI allows users to switch between different modes of operation (e.g.
    ./naoqi &
 
    cd /opt/Aldebaran/choregraphe-suite-2.5.10.7-linux64
-    ./choregraphe &
+   ./choregraphe &
 
     connect virtual robot
    get port from edit preferences virtual robot

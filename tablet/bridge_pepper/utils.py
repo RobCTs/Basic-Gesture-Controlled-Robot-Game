@@ -9,3 +9,9 @@ class DialogType(Enum):
     GAME_ROCK_PAPER_SCISSORS_START = "game.rock_paper_scissors.start"
     GAME_ROCK_PAPER_SCISSORS_ROUND = "game.rock_paper_scissors.round"
     GAME_ROCK_PAPER_SCISSORS_OVER = "game.rock_paper_scissors.over"
+
+class PostureType(Enum):
+    NORMAL = "normal"
+    PAPER = "paper"
+    SCISSORS = "scissors"
+    ROCK = "rock"
