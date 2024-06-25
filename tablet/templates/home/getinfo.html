@@ -21,4 +21,26 @@
         </div>
     </form>
 </div>
+
+<script>
+    function fetchASRSentence() {
+        fetch('/get_asr_sentence') // Response is a simple string
+            .then(response => response.text())
+            .then(data => {
+                if (data) {
+                    // If data contains Name: and Age: then submit the form. Take out ","
+                    if (data.includes('Name: ') && data.includes('Age: ')) {
+                        let name = data.split('Name: ')[1].split('Age: ')[0].replace(',', '');
+                        let age = data.split('Age: ')[1].replace(',', '');
+
+                        document.querySelector('input[name="name"]').value = name;
+                        document.querySelector('input[name="age"]').value = age;
+                        document.querySelector('.form-button').click();
+                    }
+                }
+            });
+    }
+    setInterval(fetchASRSentence, 1500);
+</script>
+
 {% endblock %}

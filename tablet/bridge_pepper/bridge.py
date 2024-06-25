@@ -21,3 +21,9 @@ def set_posture(posture: PostureType = PostureType.NORMAL, delay_ms: int = 0, ti
         'posture': posture.value
     }, timeout=10)
     return response.text
+
+def get_asr_sentence(delay_ms: int = 0):
+    if delay_ms > 0:
+        time.sleep(delay_ms / 1000)
+    response = httpx.get('http://localhost:5000/get_asr_sentence', timeout=10)
+    return response.text

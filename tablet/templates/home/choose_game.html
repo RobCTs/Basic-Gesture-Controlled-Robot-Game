@@ -15,4 +15,21 @@
         </div>
     </div>
 </div>
+<script>
+    function fetchASRSentence() {
+        fetch('/get_asr_sentence') // Response is a simple string
+            .then(response => response.text())
+            .then(data => {
+                if (data) {
+                    if (data === 'Rock Paper Scissors') {
+                        window.location.href = "{{ url_for('game.rock_paper_scissors') }}";
+                    } else if (data === 'Guess My Gesture') {
+                        window.location.href = "{{ url_for('game.copycat') }}";
+                    }
+                }
+            });
+    }
+    setInterval(fetchASRSentence, 1500);
+</script>
+
 {% endblock %}

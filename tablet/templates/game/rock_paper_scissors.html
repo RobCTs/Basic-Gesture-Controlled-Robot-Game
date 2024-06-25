@@ -125,4 +125,23 @@
     setInterval(fetchGameStatus, 500);
 </script>
 {% endif %}
+
+{% if not playing_rps %}
+<script>
+    function fetchASRSentence() {
+        fetch('/get_asr_sentence') // Response is a simple string
+            .then(response => response.text())
+            .then(data => {
+                if (data) {
+                    if (data === 'Start') {
+                        window.location.href = "{{ url_for('game.start_game') }}";
+                    } else if (data === 'Go Back') {
+                        window.location.href = "{{ url_for('home.choose_game') }}";
+                    }
+                }
+            });
+    }
+    setInterval(fetchASRSentence, 1500);
+</script>
+{% endif %}
 {% endblock %}

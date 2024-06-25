@@ -7,8 +7,23 @@
     <div class="container">
         <h1 class="title">Welcome Human!</h1>
         <p class="subtitle">
-            Talk with me or
+            Say "Pepper" or 
         </p>
         <button class="button" onclick="location.href='{{ url_for('home.getinfo') }}'">Touch This Button</button>
     </div>
+
+    <script>
+        function fetchASRSentence() {
+            fetch('/get_asr_sentence') // Response is a simple string
+                .then(response => response.text())
+                .then(data => {
+                    if (data) {
+                        if (data === 'Pepper') {
+                            window.location.href = "{{ url_for('home.getinfo') }}";
+                        }
+                    }
+                });
+        }
+        setInterval(fetchASRSentence, 1500);
+    </script>
 {% endblock %}

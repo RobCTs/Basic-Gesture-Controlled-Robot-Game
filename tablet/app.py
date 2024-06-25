@@ -15,5 +15,8 @@ def create_app():
     from apps.game.views import game
     app.register_blueprint(game)
 
+    from apps.robot.views import robot
+    app.register_blueprint(robot)
+
     return app
 
