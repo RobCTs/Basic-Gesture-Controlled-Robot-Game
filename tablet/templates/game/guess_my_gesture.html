@@ -1,23 +1,13 @@
 {% extends "home/base.html" %}
-{% block title %}Rock Paper Scissors{% endblock %}
+{% block title %}Guess My Gesture{% endblock %}
 {% block styles %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/rock_paper_scissors.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/guess_my_gesture.css') }}">
 {% endblock %}
 {% block content %}
-{% if playing_rps %}
+{% if playing_gesture %}
 <div class="interround-container" id="interround-container" style="display: none;">
     <div class="interround-heading" id="interround-gametext">
-        <p>Inter Round</p>
-    </div>
-    <div class="interround-moves">
-        <div class="player-move">
-            <p class="interround-move-text">Player Move:</p>
-            <img id="player-move-img" src="" alt="Player Move" class="move-img">
-        </div>
-        <div class="computer-move">
-            <p class="interround-move-text">Computer Move:</p>
-            <img id="computer-move-img" src="" alt="Computer Move" class="move-img">
-        </div>
+        <p id="interround-move-text">Inter Round</p>
     </div>
     <div class="interround-text">
         <p>Get ready for the next round!</p>
@@ -26,33 +16,30 @@
 {% endif %}
 <div class="container-whole" id="container-whole">
     <div class="container">
-        <h1 class="title" id="heading-text">Rock Paper Scissors</h1>
+        <h1 class="title" id="heading-text">Guess My Gesture</h1>
         <div class="video-container">
-            <img src="{{ url_for('game.video_feed') }}" class="video-feed">
+            <img src="{{ url_for('game.video_feed_gesture') }}" class="video-feed">
         </div>
-        {% if playing_rps %}
+        {% if playing_gesture %}
             
             <div class="status-container">
                 <div class="status-left">
                     <div class="gamestat">
-                        <p id="instant-player-move">Instant Player Move: </p>
+                        <p id="instant-player-move">Instant Gesture: </p>
                     </div>
                     <div class="gamestat">
-                        <p id="average-player-move">Current Player Move: </p>
+                        <p id="average-player-move">Current Gesture: </p>
                     </div>
                 </div>
                 <div class="status-right">
                     <div class="gamestat">
                         <p id="current-round">Round: </p>
                     </div>
-                    <div class="gamestat">
-                        <p id="player-score">Score: </p>
-                    </div>
                 </div>
             </div>
         {% else %}
             <div class="buttons">
-                <button class="button" onclick="location.href='{{ url_for('game.start_game') }}'">Start Game</button>
+                <button class="button" onclick="location.href='{{ url_for('game.start_game_gesture') }}'">Start Game</button>
                 <button class="button" onclick="location.href='{{ url_for('home.choose_game') }}'">Go Back</button>
             </div>
         {% endif %}
@@ -61,31 +48,24 @@
 </div>
 
 
-{% if playing_rps %}
+{% if playing_gesture %}
 <script>
     function fetchGameStatus() {
-        fetch('/get_game_status')
+        fetch('/get_game_status_gesture')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('instant-player-move').innerText = 'Instant Player Move: ' + data.instant_player_move;
                 document.getElementById('average-player-move').innerText = 'Current Player Move: ' + data.player_move;
                 document.getElementById('heading-text').innerText = data.game_text;
-                document.getElementById('player-score').innerText = 'Score: ' + data.player_score;
                 document.getElementById('current-round').innerText = 'Round: ' + data.current_round + '/' + data.total_rounds;
 
                 // Show or hide interround-container based on inter_round_paused
                 const interroundContainer = document.getElementById('interround-container');
                 const containerWhole = document.getElementById('container-whole');
                 if (data.inter_round_paused) {
-                    document.getElementById('interround-gametext').innerText = data.game_text;
-                    
-                    let player_move_to_display = data.player_move
-                    if (player_move_to_display === 'Not Valid') {
-                        player_move_to_display = 'NotValid'
-                    }
-                    // Update images based on player and computer moves
-                    document.getElementById('player-move-img').src = `/static/images/${player_move_to_display}.png`;
-                    document.getElementById('computer-move-img').src = `/static/images/${data.computer_move}.png`;
+
+                    // Update interround move text
+                    document.getElementById('interround-move-text').innerText = 'Player Gesture: ' + data.player_move;
                   
                     interroundContainer.style.display = 'flex';
 
@@ -99,8 +79,8 @@
                     containerWhole.classList.remove('blur');
                 }
 
-                if (data.over_rps === true) {
-                    location.href = '/rock_paper_scissors_result';
+                if (data.over_gesture === true) {
+                    location.href = '/gesture_end';
                 }
 
                 // Based on current_round, change the background of the whole page
@@ -129,7 +109,7 @@
 </script>
 {% endif %}
 
-{% if not playing_rps %}
+{% if not playing_gesture %}
 <script>
     function fetchASRSentence() {
         fetch('/get_asr_sentence') // Response is a simple string
@@ -137,7 +117,7 @@
             .then(data => {
                 if (data) {
                     if (data === 'Start') {
-                        window.location.href = "{{ url_for('game.start_game') }}";
+                        window.location.href = "{{ url_for('game.start_game_gesture') }}";
                     } else if (data === 'Go Back') {
                         window.location.href = "{{ url_for('home.choose_game') }}";
                     }

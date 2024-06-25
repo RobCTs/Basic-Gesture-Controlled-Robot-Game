@@ -98,6 +98,21 @@ INTER_ROUND_TIME = 5
 def gen_frames():
     global player_move, computer_move, game_text, player_score, current_round, playing_rps, over_rps, timer_pred_rps, timer_round_rps, predictions_round_rps, inter_round_paused, timer_inter_round, instant_player_move
     cap = cv2.VideoCapture(0)
+
+    age = None
+    current_user = None
+    # Get current user and age
+    with open('session/info.json', 'r') as f:
+        data = json.load(f)
+        current_user = data['currentUser']
+        for user in data['registeredUsers']:
+            if user['name'] == current_user:
+                age = user['age']
+                break
+    if age is None:
+        age = 18
+
+    
     while True:
         success, frame = cap.read()
         if not success:
@@ -115,7 +130,7 @@ def gen_frames():
                         predictions_round_rps = []
                         game_text = "Make your move!"
 
-                        y = threading.Thread(target=set_posture, args=(PostureType.NORMAL, 0, 2.0))
+                        y = threading.Thread(target=set_posture, args=(PostureType.NORMAL, 0, 2.0, age))
                         y.start()
                 else:
                     current_time = datetime.datetime.now()
@@ -164,13 +179,13 @@ def gen_frames():
 
                             # Set Robot Posture
                             if computer_move == "rock":
-                                y = threading.Thread(target=set_posture, args=(PostureType.ROCK, 0, 1.5))
+                                y = threading.Thread(target=set_posture, args=(PostureType.ROCK, 0, 1.5, age))
                                 y.start()
                             elif computer_move == "paper":
-                                y = threading.Thread(target=set_posture, args=(PostureType.PAPER, 0, 1.5))
+                                y = threading.Thread(target=set_posture, args=(PostureType.PAPER, 0, 1.5, age))
                                 y.start()
                             elif computer_move == "scissors":
-                                y = threading.Thread(target=set_posture, args=(PostureType.SCISSORS, 0, 1.5))
+                                y = threading.Thread(target=set_posture, args=(PostureType.SCISSORS, 0, 1.5, age))
                                 y.start()
                             
 
@@ -191,19 +206,22 @@ def rock_paper_scissors():
     playing_rps = False
     over_rps = False
     
+    age = None
+    current_user = None
     # Get current user and age
     with open('session/info.json', 'r') as f:
         data = json.load(f)
-        user = data['currentUser']
-        age = None
+        current_user = data['currentUser']
         for user in data['registeredUsers']:
-            if user['name'] == user:
+            if user['name'] == current_user:
                 age = user['age']
                 break
+    if age is None:
+        age = 18
 
     
     if not playing_rps:
-        x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_ROCK_PAPER_SCISSORS_START, {'name': user["name"] }))
+        x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_ROCK_PAPER_SCISSORS_START, {'name': current_user }))
         x.start()
     
     return render_template('game/rock_paper_scissors.html', playing_rps=playing_rps)
@@ -266,10 +284,170 @@ def rock_paper_scissors_result():
     return render_template('game/rock_paper_scissors_result.html', player_score=player_score, final_text=final_text)
 
 
-# COPYCAT GAME
+# Guess My Gesture Game
+
+# Global variables to store game status
+playing_gesture = False
+over_gesture = False
+current_round_gesture = 0
+game_text_gesture = "Make your move!"
+player_move_gesture = None
+instant_player_move_gesture = None
+inter_round_paused_gesture = False
+timer_inter_round_gesture = datetime.datetime.now()
+timer_gesture = datetime.datetime.now()
+timer_pred_gesture = datetime.datetime.now()
+predictions_round_gesture = []
+
+PREDS_PER_SEC_GESTURE = 10
+ROUND_TIME_GESTURE = 4
+TOTAL_ROUNDS_GESTURE = 5
+INTER_ROUND_TIME_GESTURE = 5
 
 
-@game.route('/copycat')
-def copycat():
-    return '<h1>Copy Cat</h1>'
+def format_prediction(prediction):
+    return prediction.replace("_", " ").capitalize()
 
+def gen_frames_gestures():
+    global game_text_gesture, current_round_gesture, playing_gesture, over_gesture, timer_pred_gesture, timer_inter_round_gesture, predictions_round_gesture, inter_round_paused_gesture, timer_inter_round_gesture, instant_player_move_gesture, player_move_gesture
+    cap = cv2.VideoCapture(0)
+    while True:
+        success, frame = cap.read()
+        if not success:
+            break
+        else:
+            if playing_gesture:
+                if inter_round_paused_gesture:
+                    current_time = datetime.datetime.now()
+                    time_elapsed_inter_round = current_time - timer_inter_round_gesture
+                    if time_elapsed_inter_round.total_seconds() >= INTER_ROUND_TIME_GESTURE:
+                        inter_round_paused_gesture = False
+                        timer_pred_gesture = current_time
+                        timer_inter_round_gesture = current_time
+                        current_round_gesture += 1
+                        predictions_round_gesture = []
+                        game_text_gesture = "Make your move!"
+                else:
+                    current_time = datetime.datetime.now()
+                    time_elapsed_pred = current_time - timer_pred_gesture
+
+                    # For each 1/PRED_PER_SEC seconds, capture the player's move
+                    if time_elapsed_pred.total_seconds() >= 1 / PREDS_PER_SEC_GESTURE:
+                        timer_pred_gesture = current_time
+                        # Keep the frame dimensions intact
+                        frame_height, frame_width = frame.shape[:2]
+                        min_dim = min(frame_height, frame_width)
+                        start_x = frame_width // 2 - min_dim // 2
+                        end_x = frame_width // 2 + min_dim // 2
+                        start_y = frame_height // 2 - min_dim // 2
+                        end_y = frame_height // 2 + min_dim // 2
+                        cropped_frame = frame[start_y:end_y, start_x:end_x]
+
+                        prediction = predict_single_image(interpreter, cropped_frame, label_encoder)
+                        predictions_round_gesture.append(prediction)
+                        instant_player_move_gesture = format_prediction(prediction)
+                        player_move_gesture = max(set(predictions_round_gesture), key=predictions_round_gesture.count)
+                        player_move_gesture = format_prediction(player_move_gesture)
+
+                    # If the round time has elapsed, determine the winner of the round
+                    time_elapsed_round = current_time - timer_inter_round_gesture
+                    if time_elapsed_round.total_seconds() >= ROUND_TIME_GESTURE:
+                        if predictions_round_gesture:
+                            player_move_gesture = max(set(predictions_round_gesture), key=predictions_round_gesture.count)
+                            player_move_gesture = format_prediction(player_move_gesture)
+
+                            inter_round_paused_gesture = True
+                            timer_inter_round_gesture = current_time
+                            x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_GUESS_MY_GESTURE_ROUND, {'gesture_player': player_move_gesture}))
+                            x.start()
+                            
+
+                if current_round_gesture >= TOTAL_ROUNDS_GESTURE:
+                    playing_gesture = False
+                    over_gesture = True
+                    inter_round_paused_gesture = False
+
+            # Encode the frame to send it as a response
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@game.route('/guess_my_gesture')
+def guess_my_gesture():
+    global playing_gesture, over_gesture
+    playing_gesture = False
+    over_gesture = False
+    
+    age = None
+    current_user = None
+    # Get current user and age
+    with open('session/info.json', 'r') as f:
+        data = json.load(f)
+        current_user = data['currentUser']
+        for user in data['registeredUsers']:
+            if user['name'] == current_user:
+                age = user['age']
+                break
+    if age is None:
+        age = 18
+
+    
+    if not playing_gesture:
+        x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_GUESS_MY_GESTURE_START, {'name': current_user }))
+        x.start()
+    
+    return render_template('game/guess_my_gesture.html', playing_gesture=playing_gesture)
+
+
+@game.route('/start_game_gesture')
+def start_game_gesture():
+    global playing_gesture, over_gesture
+    playing_gesture = True
+    over_gesture = False
+
+    # Reset the game status
+    global player_move_gesture, game_text_gesture, current_round_gesture, timer_gesture, predictions_round_gesture, timer_gesture, inter_round_paused_gesture, timer_inter_round_gesture, instant_player_move_gesture, timer_pred_gesture
+    player_move_gesture = None
+    game_text_gesture = "Make your move!"
+    current_round_gesture = 0
+    timer_gesture = datetime.datetime.now()
+    timer_pred_gesture = datetime.datetime.now()
+    inter_round_paused_gesture = False
+    timer_inter_round_gesture = datetime.datetime.now()
+    predictions_round_gesture = []
+
+    # Refresh the rock paper scissors page with playing_gesture set to True
+    return render_template('game/guess_my_gesture.html', playing_gesture=playing_gesture)
+
+@game.route('/video_feed_gesture')
+def video_feed_gesture():
+    return Response(gen_frames_gestures(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+
+@game.route('/get_game_status_gesture')
+def get_game_status_gesture():
+    global player_move_gesture, game_text_gesture, current_round_gesture, TOTAL_ROUNDS_GESTURE, over_gesture, inter_round_paused_gesture, instant_player_move_gesture
+    return jsonify({
+        'player_move': player_move_gesture,
+        'instant_player_move': instant_player_move_gesture,
+        'game_text': game_text_gesture,
+        'current_round': current_round_gesture,
+        'total_rounds': TOTAL_ROUNDS_GESTURE,
+        'over_gesture': over_gesture,
+        'inter_round_paused': inter_round_paused_gesture
+    })
+
+@game.route('/gesture_end')
+def gesture_end():
+    global playing_gesture, over_gesture
+    playing_gesture = False
+    over_gesture = False
+
+    final_text = "The game is over!"
+
+    x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_GUESS_MY_GESTURE_OVER,))
+    x.start()
+
+    return render_template('game/guess_my_gesture_end.html', final_text=final_text)

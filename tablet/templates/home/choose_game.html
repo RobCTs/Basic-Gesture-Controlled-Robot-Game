@@ -10,8 +10,8 @@
         <div class="game-choice" onclick="location.href='{{ url_for('game.rock_paper_scissors') }}'">
             <p>Rock Paper Scissors</p>
         </div>
-        <div class="game-choice" onclick="location.href='{{ url_for('game.copycat') }}'">
-            <p>Copycat</p>
+        <div class="game-choice" onclick="location.href='{{ url_for('game.guess_my_gesture') }}'">
+            <p>Guess My Gesture</p>
         </div>
     </div>
 </div>
@@ -24,7 +24,7 @@
                     if (data === 'Rock Paper Scissors') {
                         window.location.href = "{{ url_for('game.rock_paper_scissors') }}";
                     } else if (data === 'Guess My Gesture') {
-                        window.location.href = "{{ url_for('game.copycat') }}";
+                        window.location.href = "{{ url_for('game.guess_my_gesture') }}";
                     }
                 }
             });

@@ -9,6 +9,9 @@ class DialogType(Enum):
     GAME_ROCK_PAPER_SCISSORS_START = "game.rock_paper_scissors.start"
     GAME_ROCK_PAPER_SCISSORS_ROUND = "game.rock_paper_scissors.round"
     GAME_ROCK_PAPER_SCISSORS_OVER = "game.rock_paper_scissors.over"
+    GAME_GUESS_MY_GESTURE_START = "game.guess_my_gesture.start"
+    GAME_GUESS_MY_GESTURE_ROUND = "game.guess_my_gesture.round"
+    GAME_GUESS_MY_GESTURE_OVER = "game.guess_my_gesture.over"
 
 class PostureType(Enum):
     NORMAL = "normal"

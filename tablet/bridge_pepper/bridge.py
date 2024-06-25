@@ -13,12 +13,13 @@ def get_robot_dialog(dialog_type: DialogType = DialogType.INITIAL_GREETING, para
     }, timeout=10)
     return response.text
 
-def set_posture(posture: PostureType = PostureType.NORMAL, delay_ms: int = 0, time_s = 3.0):
+def set_posture(posture: PostureType = PostureType.NORMAL, delay_ms: int = 0, time_s = 3.0, age = 18):
     if delay_ms > 0:
         time.sleep(delay_ms / 1000)
     response = httpx.post('http://localhost:5000/set_posture', json={
         'time': time_s,
-        'posture': posture.value
+        'posture': posture.value,
+        'age': age
     }, timeout=10)
     return response.text
 

@@ -1,14 +1,13 @@
 {% extends "home/base.html" %}
-{% block title %}Game Result{% endblock %}
+{% block title %}Guess My Gesture End{% endblock %}
 {% block styles %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/rock_paper_scissors.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/guess_my_gesture.css') }}">
 {% endblock %}
 {% block content %}
 <div class="container-result">
     <h1 class="result-title">{{ final_text }}</h1>
-    <p class="result">Player Score: {{ player_score }}</p>
     <div class="buttons">
-        <button class="button" onclick="location.href='{{ url_for('game.start_game') }}'">Play Again</button>
+        <button class="button" onclick="location.href='{{ url_for('game.start_game_gesture') }}'">Play Again</button>
         <button class="button" onclick="location.href='{{ url_for('home.choose_game') }}'">Choose Game</button>
     </div>
 </div>
@@ -19,7 +18,7 @@
             .then(data => {
                 if (data) {
                     if (data === 'Play Again') {
-                        window.location.href = "{{ url_for('game.start_game') }}";
+                        window.location.href = "{{ url_for('game.start_game_gesture') }}";
                     } else if (data === 'Choose Game') {
                         window.location.href = "{{ url_for('home.choose_game') }}";
                     }

@@ -2,38 +2,67 @@ from pepper.pepper_tools.cmd_server.pepper_cmd import PepperRobot
 import almath
 
 
-JOINT_NAMES = ["HeadYaw", "HeadPitch",
-               "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw",
-               "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw",
-               "LHand", "RHand"]
-
 # Postures for the Rock Paper Scissors game - In Degrees (except for the hands)
 PAPER_DICT = {
                 'HeadYaw': 0.0, 'HeadPitch': almath.TO_DEG*(-0.21), 
                 'LShoulderPitch': 112.8, 'LShoulderRoll': 4.8, 'LElbowYaw': -85.9, 'LElbowRoll': -14.6, 'LWristYaw': 2.0, 
                 'RShoulderPitch': 17.0, 'RShoulderRoll': -1.7, 'RElbowYaw': 90.9, 'RElbowRoll': 77.8, 'RWristYaw': -94.7,
-                'LHand': 1.0, 'RHand': 1.0
-              }    
+                'LHand': 1.0, 'RHand': 1.0,
+}    
 
 SCISSORS_DICT = {
                 'HeadYaw': 0.0, 'HeadPitch': almath.TO_DEG*(-0.21), 
                 'LShoulderPitch': -59.2, 'LShoulderRoll': 28.3, 'LElbowYaw': -23.7, 'LElbowRoll': -73.5, 'LWristYaw': 2.0, 
                 'RShoulderPitch': -53.9, 'RShoulderRoll': -11.8, 'RElbowYaw': 36.0, 'RElbowRoll': 77.8, 'RWristYaw': -95.3,
                 'LHand': 1.0, 'RHand': 1.0
-              }
+}
 
 ROCK_DICT = {
                 'HeadYaw': 0.0, 'HeadPitch': almath.TO_DEG*(-0.21), 
                 'LShoulderPitch': 112.8, 'LShoulderRoll': 4.8, 'LElbowYaw': -85.9, 'LElbowRoll': -14.6, 'LWristYaw': 2.0, 
                 'RShoulderPitch': 26.6, 'RShoulderRoll': -1.7, 'RElbowYaw': 90.9, 'RElbowRoll': 36.6, 'RWristYaw': -94.7,
                 'LHand': 1.0, 'RHand': 0.0
-              }
+}
+
+# Kid postures
+KID_NORMAL_DICT = {
+                'LShoulderPitch': almath.TO_DEG*(1.55), 'LShoulderRoll': almath.TO_DEG*(0.13), 'LElbowYaw': almath.TO_DEG*(-1.24), 'LElbowRoll': almath.TO_DEG*(-0.52), 'LWristYaw': almath.TO_DEG*(0.01),
+                'RShoulderPitch': almath.TO_DEG*(1.56), 'RShoulderRoll': almath.TO_DEG*(-0.14), 'RElbowYaw': almath.TO_DEG*(1.22), 'RElbowRoll': almath.TO_DEG*(0.52), 'RWristYaw': almath.TO_DEG*(-0.01),
+                'LHand': 0.0, 'RHand': 0.0 ,
+                'HeadYaw': 0.0, 'HeadPitch': -12.6,
+                'HipRoll': 0.0, 'HipPitch': -49.9, 'KneePitch': 19.6,
+}
+
+# For Rock Paper Scissors, repeat the same posture but with the KID_NORMAL_DICT values for the head and hip
+KID_PAPER_DICT = {
+                'HeadYaw': 0.0, 'HeadPitch': -12.6,
+                'HipRoll': 0.0, 'HipPitch': -49.9, 'KneePitch': 19.6,
+                'LShoulderPitch': 112.8, 'LShoulderRoll': 4.8, 'LElbowYaw': -85.9, 'LElbowRoll': -14.6, 'LWristYaw': 2.0, 
+                'RShoulderPitch': 17.0, 'RShoulderRoll': -1.7, 'RElbowYaw': 90.9, 'RElbowRoll': 77.8, 'RWristYaw': -94.7,
+                'LHand': 1.0, 'RHand': 1.0 
+}
+
+KID_SCISSORS_DICT = {
+                'HeadYaw': 0.0, 'HeadPitch': -12.6,
+                'HipRoll': 0.0, 'HipPitch': -49.9, 'KneePitch': 19.6,
+                'LShoulderPitch': -59.2, 'LShoulderRoll': 28.3, 'LElbowYaw': -23.7, 'LElbowRoll': -73.5, 'LWristYaw': 2.0, 
+                'RShoulderPitch': -53.9, 'RShoulderRoll': -11.8, 'RElbowYaw': 36.0, 'RElbowRoll': 77.8, 'RWristYaw': -95.3,
+                'LHand': 1.0, 'RHand': 1.0
+}
+
+KID_ROCK_DICT = {
+                'HeadYaw': 0.0, 'HeadPitch': -12.6,
+                'HipRoll': 0.0, 'HipPitch': -49.9, 'KneePitch': 19.6,
+                'LShoulderPitch': 112.8, 'LShoulderRoll': 4.8, 'LElbowYaw': -85.9, 'LElbowRoll': -14.6, 'LWristYaw': 2.0, 
+                'RShoulderPitch': 26.6, 'RShoulderRoll': -1.7, 'RElbowYaw': 90.9, 'RElbowRoll': 36.6, 'RWristYaw': -94.7,
+                'LHand': 1.0, 'RHand': 0.0        
+}  
 
 def returnJointValueArrayFromDict(dict):
     # Convert all to radians except for LHand and RHand
     joint_list = []
     
-    for joint in JOINT_NAMES:
+    for joint in dict:
         # Check if the joint is a hand
         if joint == 'LHand' or joint == 'RHand':
             joint_list.append(dict[joint])
@@ -41,7 +70,11 @@ def returnJointValueArrayFromDict(dict):
             joint_list.append(almath.TO_RAD*dict[joint])
     return joint_list
 
-
+def returnJointNamesArrayFromDict(dict):
+    joint_list = []
+    for joint in dict:
+        joint_list.append(joint)
+    return joint_list
 
 
 def normalPosture(robot, time = 3.0):
@@ -57,4 +90,4 @@ def normalPosture(robot, time = 3.0):
 
 def setPosture(robot, jointValues, time = 3.0):
     isAbsolute = True
-    robot.motion_service.angleInterpolation(JOINT_NAMES, returnJointValueArrayFromDict(jointValues), time, isAbsolute)
+    robot.motion_service.angleInterpolation(returnJointNamesArrayFromDict(jointValues), returnJointValueArrayFromDict(jointValues), time, isAbsolute)

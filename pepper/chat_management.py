@@ -42,6 +42,19 @@ def get_robot_dialog(dialog_type, params):
             robot_says += " I win!"
         else:
             robot_says += " It's a tie!"
+        robot_says += " Say 'Play Again' to play again or 'Choose Game' to choose another game."
+        listen_answer = True
+        answer_choices = ["Play Again", "Choose Game"]
+    if dialog_type == "game.guess_my_gesture.start":
+        robot_says = "Let's play Guess My Gesture, " + params["name"] + ". You can start by saying Start or clicking the button on the tablet. You can go back saying Go Back. You will have 3 seconds to make your move each round, and there will be 5 rounds in total. Keep your pose steady during the 3 seconds."
+        listen_answer = True
+        answer_choices = ["Start", "Go Back"]
+    if dialog_type == "game.guess_my_gesture.round":
+        robot_says = "You made a " + str(params["gesture_player"]) + " gesture!"
+    if dialog_type == "game.guess_my_gesture.over":
+        robot_says = "Game Over! Say 'Play Again' to play again or 'Choose Game' to choose another game."
+        listen_answer = True
+        answer_choices = ["Play Again", "Choose Game"]
     return robot_says, listen_answer, answer_choices
 
 def reset_asr(robot):
@@ -97,7 +110,7 @@ def asr(robot, timeout=3, dt=0.2, choices=None):
                 break
 
     if asr_sentence == '' and asr_listening:
-        asr(robot, timeout, dt, choices)
+        stop_asr_listening()
         return "N/A"
     else:
         print("ASR Detected: " + asr_sentence)

@@ -72,20 +72,24 @@ def getinfo():
         
 @home.route('/choose_game')
 def choose_game():
+    age = None
+    current_user = None
     # Get current user and age
     with open('session/info.json', 'r') as f:
         data = json.load(f)
-        user = data['currentUser']
-        age = None
+        current_user = data['currentUser']
         for user in data['registeredUsers']:
-            if user['name'] == user:
+            if user['name'] == current_user:
                 age = user['age']
                 break
+    if age is None:
+        age = 18
 
     x = threading.Thread(target=get_robot_dialog, args=(DialogType.GAME_CHOOSE_GAME, {}, 2000))
     x.start()
 
-    y = threading.Thread(target=set_posture, args=(PostureType.NORMAL, 0, 3.0))
+
+    y = threading.Thread(target=set_posture, args=(PostureType.NORMAL, 0, 3.0, age))
     y.start()
 
     return render_template('home/choose_game.html', user=user, age=age)

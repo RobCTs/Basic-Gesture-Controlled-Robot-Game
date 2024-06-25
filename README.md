@@ -13,7 +13,7 @@ Basic Gesture Controlled Robot for Basic Games
 ## Brief description
 What it does: Utilize motion sensors to control a robot through hand gestures, which could be used for games or simple tasks. 
 Sensors: Use a webcam and simple motion detection software to control a robot’s movements with hand gestures. 
-Other: The GUI allows users to switch between different modes of operation (e.g., copycat, rock-paper-scissors).
+Other: The GUI allows users to switch between different modes of operation (e.g., Guess My Gesture, Rock Paper Scissors).
 
 
 # Running Tablet Flask Server
