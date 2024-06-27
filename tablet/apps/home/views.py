@@ -12,7 +12,8 @@ home = Blueprint('home', __name__, template_folder='templates', static_folder='s
 
 
 @home.route('/')
-def index():
+def index(): # Home page Route
+    # Get the initial greeting from the robot
     x = threading.Thread(target=get_robot_dialog, args=(DialogType.INITIAL_GREETING, {}))
     x.start()
 
@@ -20,14 +21,17 @@ def index():
 
     
 @home.route('/getinfo', methods=["GET", "POST"])
-def getinfo():
+def getinfo(): # Get the user information Route
+    # Create the User Information form
     form = InfoForm()
 
-
+    # If the form is submitted
     if form.validate_on_submit():
+        # Get the name and age from the form
         name = form.name.data
         age = form.age.data
 
+        # Save the user information in a JSON file
         if not os.path.exists('session'):
             os.makedirs('session')
 
@@ -54,15 +58,17 @@ def getinfo():
                 'name': name,
                 'age': age
             })
-
+    
         with open('session/info.json', 'w') as f:
             json.dump(data, f)
-
+        
+        # Get the robot dialog for when the user information is finalized
         x = threading.Thread(target=get_robot_dialog, args=(DialogType.INITIAL_INFO_FINALIZED, {'name': name, 'age': age}))
         x.start()
 
         return redirect(url_for('home.choose_game'))
-    else:
+    else: # If the form is not submitted
+        # Get the robot dialog for the user information form
         x = threading.Thread(target=get_robot_dialog, args=(DialogType.INITIAL_INFO_NAME_AGE, {}))
         x.start()
 

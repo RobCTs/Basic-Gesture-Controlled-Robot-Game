@@ -1,6 +1,4 @@
 # Basic-Gesture-Controlled-Robot-Game
-Basic Gesture Controlled Robot for Basic Games
-
 
 ## Team
 
@@ -11,47 +9,51 @@ Basic Gesture Controlled Robot for Basic Games
 
 
 ## Brief description
-This project involves developing an interactive system for the Pepper robot to engage with users in two specific games: Rock Paper Scissors and Guess My Gesture. The interaction encompasses Pepper's ability to assume various postures, respond to user inputs via speech or touch, and provide feedback based on the game outcomes. The implementation utilizes Pepper's motion capabilities and natural language processing functionalities.  
+This project involves developing an interactive system for the Pepper robot to engage with users in two specific games: Rock Paper Scissors and Guess My Gesture. The interaction is facilitated through speech recognition and a tablet interface, allowing users to play the games with the robot. The system includes posture definitions for Pepper, speech recognition functions, and dialog management to provide a smooth and engaging user experience. It leverages a Hand Gesture Recognition machine learning model for the Robot to recognize the user's gestures, which in turn allow for the Rock Paper Scissors and Guess My Gesture games to be played.
 
 ### Objectives
-1) Enable Pepper to perform specific postures for the games.  
-2) Develop an interface for Pepper to interact with users through speech recognition and tactile inputs.  
+1) Implement a gesture recognition system to detect user hand gestures.
+2) Develop an interface for Pepper to interact with users through speech recognition and a tablet interface.
 3) Implement the game logic for Rock Paper Scissors and Guess My Gesture.  
-4) Provide a smooth and engaging user experience through dialog management.  
-
-### What it does
-Utilize motion sensors to control a robot through hand gestures, which could be used for games or simple tasks. 
-
-**Sensors**: Use a webcam and simple motion detection software to control a robot’s movements with hand gestures. 
-**Other**: The GUI allows users to switch between different modes of operation (e.g., Guess My Gesture, Rock Paper Scissors).
-
+4) Provide a smooth and engaging user experience through dialog management.
+5) Personalize the interaction for children by adapting the robot's postures and dialogues.
 
 ## Implementation
-### Posture Definitions
-Several dictionaries define the joint angles for various postures that Pepper will assume during the games. The postures are expressed in degrees for clarity, except for the hand positions.  
 
-**Rock Paper Scissors Postures**: There are three primary postures defined: Rock, Paper, and Scissors. Each posture is represented by a dictionary containing joint angles for the head, shoulders, elbows, wrists, and hands.  
+### Tablet Interface
 
-**Child-Specific Postures**: To cater to interactions with children, additional postures are adapted from the standard ones. These postures ensure that the robot maintains a child-friendly appearance and engagement style.  
+The tablet interface is implemented using a Flask server that communicates with the Pepper robot through a REST API. The interface allows users to identify themselves, select a game to play, and interact with the robot during the game. The interface includes the following components:
 
-Two functions convert the posture dictionaries to arrays that can be used by Pepper's motion service. One function converts the joint angles to radians (except for hand positions), and the other extracts the joint names. Then two main functions control Pepper's posture. One sets a normal posture with predefined joint values, and the other sets a custom posture based on the provided dictionary of joint values.  
+**User Identification**: Users can enter their name and age to personalize the interaction with the robot. The name and age is stored in the server and used to address the user during the game. Also, the age is used to determine whether the user is a child or an adult, which affects the robot's posture.
 
-## Speech Recognition and Interaction
-The robot interacts with the user using speech recognition and predefined dialogues. This interaction is managed through a combination of functions that handle speech recognition and response generation.  
+**Game Selection**: Users can choose between two games: Rock Paper Scissors and Guess My Gesture.
 
-**Speech Recognition (ASR) Functions**: These functions manage the speech recognition process, including resetting the ASR state, starting and stopping the listening process, and retrieving the recognized sentences. They also handle user input validation and provide feedback if the input does not match expected choices.  
+**Game Interaction**: During the game, users can see the status of the game, including the outcome of each round and the instant feedback of the Hand Gesture Recognition model.
 
-**Dialog Management Functions**: A set of functions generates appropriate responses based on the interaction context. These functions define the robot's dialogue for various stages of the games, including initial greetings, game instructions, round outcomes, and game over messages.  
+**Game Logic**: The game logic is implemented on the server side, where the game state is maintained, and the outcomes of each round are determined based on the user's input and the robot's choice. The Hand Gesture Recognition model is instantiated to recognize the user's gestures and the VideoCapture class is used to capture the webcam feed, to simulate a pepper camera, since the physical robot is not available.
 
+**Game Over**: After the game is completed, users receive a message indicating the winner and the final score and have the option to play again or exit.
 
-# Running Tablet Flask Server
+### Pepper Server
+
+The Pepper server implements a bridge between the Pepper Tools Interface, which controls the Pepper robot, and external programs, such as the tablet app. The server manages the interaction between the robot and the user, including posture control, speech recognition, and dialog management. The server includes the following components:
+
+**Posture Definitions**: The server defines the joint angles for various postures that Pepper will assume during the games, including Rock Paper Scissors postures and child-specific postures.
+
+**Speech Recognition and Interaction**: The server manages the speech recognition process, including resetting the ASR state, starting and stopping the listening process, and retrieving the recognized sentences. It also generates appropriate responses based on the interaction context, including initial greetings, game instructions, round outcomes, and game over messages.
+
+## Running the Project
+
+### Running Tablet Flask Server
+On Windows:
 ```bash
    cd tablet
    .\env\Scripts\activate
    flask --app app run -p 5001
 ```
 
-# Running Pepper Flask Server
+### Running Pepper Flask Server
+On Windows:
 ```bash
    cd pepper
    .\env\Scripts\activate
@@ -59,7 +61,8 @@ The robot interacts with the user using speech recognition and predefined dialog
    flask run
 ```
 
-# Running the Robot
+### Running the Robot
+On WSL/Ubuntu
 ```bash
    go to WSL/Ubuntu
    cd /home/hri_software/docker
@@ -71,15 +74,14 @@ The robot interacts with the user using speech recognition and predefined dialog
 
    cd /opt/Aldebaran/choregraphe-suite-2.5.10.7-linux64
    ./choregraphe &
-
-    connect virtual robot
-   get port from edit preferences virtual robot
-
-   Go to Host (OR WINDOWS, but need to convert the export to set)
-   export PEPPER_IP=127.0.0.1 and export PEPPER_PORT=33583
-   setx PEPPER_IP "127.0.0.1"  and setx PEPPER_PORT "33583"
-   and run pepper_cmd - Should show on Choregraphe
 ```
 
+### Connecting the Virtual Robot on Choregraphe to the Pepper Server
+On WSL/Ubuntu:
+1. Open Choregraphe
+2. Edit -> Preferences -> Virtual Robot -> Get the port number
+On Windows:
+3. setx PEPPER_IP "127.0.0.1"  and setx PEPPER_PORT "33583"
+
 ## Conclusion
-This project successfully implements an interactive system for Pepper to play Rock Paper Scissors and Guess My Gesture games with users. The robot can assume predefined postures, recognize user inputs through speech or touch, and provide appropriate feedback. The implementation emphasizes a user-friendly and engaging experience, leveraging Pepper's motion and speech capabilities. Future improvements could include enhancing the speech recognition accuracy and expanding the range of games and interactions.
+This project demonstrates the development of a Human Robot Interaction system for the Pepper robot to engage with users in two interactive games. The system leverages speech recognition, gesture recognition, and dialog management to provide a smooth and engaging user experience. The implementation includes a tablet interface for user interaction and a Pepper server for posture control, speech recognition, and dialog management. The system allows users to play Rock Paper Scissors and Guess My Gesture games with the robot, providing instant feedback and personalized interactions. Robot postures are personalized based on the age of the participant. The project showcases the potential of interactive systems for robots to engage with users in a fun and interactive way.

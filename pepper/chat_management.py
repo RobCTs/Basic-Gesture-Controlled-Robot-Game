@@ -2,13 +2,17 @@
 
 import time
 
+# Global variables for ASR
 asr_sentence = ""
 asr_listening = False
 
+# Function to get the robot dialog based on the dialog type and parameters
 def get_robot_dialog(dialog_type, params):
+    # Initialize the robot dialog, listen_answer flag and answer_choices
     robot_says = ""
     listen_answer = False
     answer_choices = None
+    # Get the robot dialog based on the dialog type
     if dialog_type == "initial.greeting":
         robot_says = "Welcome Human! I am Pepper, to start, you can talk to me by saying 'Pepper' or Touch the Button on my chest."
         listen_answer = True
@@ -57,23 +61,27 @@ def get_robot_dialog(dialog_type, params):
         answer_choices = ["Play Again", "Choose Game"]
     return robot_says, listen_answer, answer_choices
 
+# Function to reset the ASR memory key
 def reset_asr(robot):
     robot.memory_service.insertData(robot.fakeASRkey, '')
 
-
+# Function to stop the ASR listening
 def stop_asr_listening():
     global asr_listening
     asr_listening = False
     print("ASR Listening Stopped")
 
+# Function to get the ASR listening status
 def get_asr_listening():
     global asr_listening
     return asr_listening
 
+# Function to get the ASR sentence
 def get_asr_sentence():
     global asr_sentence
     return asr_sentence
 
+# Function to get the ASR sentence and reset the ASR listening
 def get_asr_sentence_and_reset_if_sent():
     global asr_sentence, asr_listening
     sentence = asr_sentence
@@ -82,11 +90,12 @@ def get_asr_sentence_and_reset_if_sent():
         stop_asr_listening()
     return sentence
 
+# Function to listen for ASR with a timeout, a time step and a list of choices
 def asr(robot, timeout=3, dt=0.2, choices=None):
     global asr_sentence, asr_listening
-    asr_listening = True
+    asr_listening = True # Set the ASR listening flag
 
-
+    # Reset the ASR memory key
     reset_asr(robot)
     asr_sentence = ''
     log_message = "Listening for ASR"
@@ -94,26 +103,31 @@ def asr(robot, timeout=3, dt=0.2, choices=None):
         log_message += " with choices: " + ", ".join(choices)
     print(log_message)
     rolling_timeout = timeout
+    # Listen for ASR until the timeout or a valid choice is detected
     while rolling_timeout > 0 and asr_listening:
         time.sleep(dt)
         rolling_timeout -= dt
+        # Get the ASR sentence from the memory
         asr_sentence = robot.memory_service.getData(robot.fakeASRkey)
+        # Check if the ASR sentence is a valid choice
         if asr_sentence:
             if choices:
+                # Check if the ASR sentence is in the list of choices
                 if asr_sentence in choices:
                     break
-                else:
+                else: # If not, reset the ASR sentence and listen again
                     asr_sentence = ''
                     reset_asr(robot)
                     robot.say("Not a valid choice. You can say the following: " + ", ".join(choices) + ". Try again.")
             else:
                 break
-
+    # Stop the ASR listening after the timeout if no valid choice was detected
     if asr_sentence == '' and asr_listening:
         stop_asr_listening()
         return "N/A"
-    else:
+    else: # If a valid choice was detected, stop the ASR listening and return the ASR sentence
         print("ASR Detected: " + asr_sentence)
+        # Stop the ASR listening
         stop_asr_listening()
         return asr_sentence
 

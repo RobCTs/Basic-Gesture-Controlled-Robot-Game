@@ -1,6 +1,7 @@
 # All possible dialog types from: pepper/chat_management.py
 from enum import Enum
 
+# Enum class for the different dialog types
 class DialogType(Enum):
     INITIAL_GREETING = "initial.greeting"
     INITIAL_INFO_NAME_AGE = "initial.info_name_age"
@@ -13,6 +14,7 @@ class DialogType(Enum):
     GAME_GUESS_MY_GESTURE_ROUND = "game.guess_my_gesture.round"
     GAME_GUESS_MY_GESTURE_OVER = "game.guess_my_gesture.over"
 
+# Enum class for the different posture types
 class PostureType(Enum):
     NORMAL = "normal"
     PAPER = "paper"

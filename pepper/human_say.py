@@ -5,7 +5,7 @@ import time
 import os
 
 
-
+# This function is responsible for simulating the human saying something to the robot by inserting the sentence in the memory
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pip", type=str, default=os.environ['PEPPER_IP'],
