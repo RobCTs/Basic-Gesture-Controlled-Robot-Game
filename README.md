@@ -1,4 +1,4 @@
-# Basic-Gesture-Controlled-Robot-Game
+# Gesture Controlled Robot Game
 
 ## Team
 
