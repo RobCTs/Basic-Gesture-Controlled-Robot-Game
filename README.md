@@ -65,7 +65,7 @@ On Windows:
 On WSL/Ubuntu
 ```bash
    go to WSL/Ubuntu
-   cd /home/hri_software/docker
+   cd hri_software/docker
    ./run.bash
    docker exec -it pepperhri tmux a
 

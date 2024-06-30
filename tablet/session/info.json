@@ -1,1 +1,13 @@
-{"currentUser": "Bernarddd", "registeredUsers": [{"name": "Bernardo Ribeiro", "age": "26"}, {"name": "Bernardo", "age": "26"}, {"name": "Bernardo ", "age": "22"}, {"name": "Bernard", "age": "12"}, {"name": "Bernardoo", "age": "25"}, {"name": "Bernarddd", "age": "10"}]}
+{
+    "currentUser": "Bernardo2",
+    "registeredUsers": [
+        {
+            "name": "Bernardo Ribeiro",
+            "age": "26"
+        },
+        {
+            "name": "Roberta Chissich",
+            "age": "11"
+        }
+    ]
+}

@@ -27,7 +27,7 @@ def get_robot_dialog(dialog_type, params):
         listen_answer = True
         answer_choices = ["Rock Paper Scissors", "Guess My Gesture"]
     if dialog_type == "game.rock_paper_scissors.start":
-        robot_says = "Let's play Rock Paper Scissors, " + params["name"] + ". You can start by saying Start or clicking the button on the tablet. You can go back saying Go Back. You will have 3 seconds to make your move each round, and there will be 5 rounds in total. Keep your pose steady during the 3 seconds."
+        robot_says = "Let's play Rock Paper Scissors, " + params["name"] + ". You can start by saying Start or clicking the button on the tablet. You can go back saying Go Back. You will have 4 seconds to make your move each round, and there will be 5 rounds in total. Keep your pose steady during the 4 seconds."
         listen_answer = True
         answer_choices = ["Start", "Go Back"]
     if dialog_type == "game.rock_paper_scissors.round":
@@ -50,7 +50,7 @@ def get_robot_dialog(dialog_type, params):
         listen_answer = True
         answer_choices = ["Play Again", "Choose Game"]
     if dialog_type == "game.guess_my_gesture.start":
-        robot_says = "Let's play Guess My Gesture, " + params["name"] + ". You can start by saying Start or clicking the button on the tablet. You can go back saying Go Back. You will have 3 seconds to make your move each round, and there will be 5 rounds in total. Keep your pose steady during the 3 seconds."
+        robot_says = "Let's play Guess My Gesture, " + params["name"] + ". You can start by saying Start or clicking the button on the tablet. You can go back saying Go Back. You will have 4 seconds to make your move each round, and there will be 5 rounds in total. Keep your pose steady during the 4 seconds."
         listen_answer = True
         answer_choices = ["Start", "Go Back"]
     if dialog_type == "game.guess_my_gesture.round":
